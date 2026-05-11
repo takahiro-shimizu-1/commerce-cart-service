@@ -3,22 +3,21 @@ import { readFileSync, writeFileSync } from 'node:fs';
 
 replaceOnce(
   'src/cart.mjs',
-  '    category: product.category,\n    stockStatus: product.stockStatus,',
-  '    category: product.category,\n    taxClass: product.taxClass,\n    stockStatus: product.stockStatus,',
+  "    subtotalCents: line.unitPriceCents * quantity,\n    currency: 'JPY',",
+  "    subtotalCents: line.unitPriceCents * quantity,\n    lineCount: 1,\n    currency: 'JPY',",
+);
+replaceOnce(
+  'src/cart.mjs',
+  '    totalCents: cart.subtotalCents,\n    currency: cart.currency,',
+  '    totalCents: cart.subtotalCents,\n    lineCount: cart.lines.length,\n    currency: cart.currency,',
 );
 replaceOnce(
   'test/cart.test.mjs',
-  "  const product = { id: 'sku-1', priceCents: 1200, category: 'stationery', stockStatus: 'in-stock' };",
-  "  const product = { id: 'sku-1', priceCents: 1200, category: 'stationery', taxClass: 'standard', stockStatus: 'in-stock' };",
-);
-replaceOnce(
-  'test/cart.test.mjs',
-  "  assert.equal(checkoutCart.lines[0].category, 'stationery');\n",
-  "  assert.equal(checkoutCart.lines[0].category, 'stationery');\n  assert.equal(checkoutCart.lines[0].taxClass, 'standard');\n",
+  '  assert.equal(checkoutCart.totalCents, 2400);\n',
+  '  assert.equal(checkoutCart.totalCents, 2400);\n  assert.equal(cart.lineCount, 1);\n  assert.equal(checkoutCart.lineCount, 1);\n',
 );
 updateContracts((entry) => {
-  if (entry.id === 'CATALOG_PRODUCT_CONTRACT') entry.version = '4';
-  if (entry.id === 'CART_CHECKOUT_CONTRACT') entry.version = '3';
+  if (entry.id === 'CART_CHECKOUT_CONTRACT') entry.version = '4';
 });
 
 function updateContracts(mutator) {
