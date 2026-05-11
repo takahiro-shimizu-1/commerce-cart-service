@@ -8,6 +8,7 @@ export function addCatalogProductToCart(product, quantity) {
     productId: product.id,
     unitPriceCents: product.priceCents,
     quantity,
+    category: product.category,
     stockStatus: product.stockStatus,
   };
   return {
