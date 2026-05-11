@@ -15,6 +15,7 @@ export function addCatalogProductToCart(product, quantity) {
   return {
     lines: [line],
     subtotalCents: line.unitPriceCents * quantity,
+    lineCount: 1,
     currency: 'JPY',
   };
 }
@@ -24,6 +25,7 @@ export function buildCheckoutCart(cart) {
     lines: cart.lines,
     subtotalCents: cart.subtotalCents,
     totalCents: cart.subtotalCents,
+    lineCount: cart.lines.length,
     currency: cart.currency,
   };
 }
