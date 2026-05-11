@@ -4,10 +4,12 @@ export const CART_COUPON_CONTRACT = 'cart-coupon-v1';
 
 export function addCatalogProductToCart(product, quantity) {
   if (!product || !Number.isInteger(product.priceCents)) throw new Error('invalid catalog product');
+  if (product.stockStatus !== 'in-stock') throw new Error('cannot add out-of-stock product');
   const line = {
     productId: product.id,
     unitPriceCents: product.priceCents,
     quantity,
+    stockStatus: product.stockStatus,
   };
   return {
     lines: [line],
