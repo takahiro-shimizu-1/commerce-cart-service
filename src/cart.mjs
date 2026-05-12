@@ -11,6 +11,7 @@ export function addCatalogProductToCart(product, quantity) {
     category: product.category,
     taxClass: product.taxClass,
     stockStatus: product.stockStatus,
+    fulfillmentRegion: product.fulfillmentRegion,
   };
   return {
     lines: [line],
@@ -27,5 +28,6 @@ export function buildCheckoutCart(cart) {
     totalCents: cart.subtotalCents,
     lineCount: cart.lines.length,
     currency: cart.currency,
+    pricingMode: 'gross',
   };
 }
