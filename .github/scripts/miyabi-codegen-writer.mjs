@@ -1,24 +1,60 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync } from 'node:fs';
 
-replaceOnce(
-  'src/cart.mjs',
-  "    subtotalCents: line.unitPriceCents * quantity,\n    currency: 'JPY',",
-  "    subtotalCents: line.unitPriceCents * quantity,\n    lineCount: 1,\n    currency: 'JPY',",
-);
-replaceOnce(
-  'src/cart.mjs',
-  '    totalCents: cart.subtotalCents,\n    currency: cart.currency,',
-  '    totalCents: cart.subtotalCents,\n    lineCount: cart.lines.length,\n    currency: cart.currency,',
-);
-replaceOnce(
-  'test/cart.test.mjs',
-  '  assert.equal(checkoutCart.totalCents, 2400);\n',
-  '  assert.equal(checkoutCart.totalCents, 2400);\n  assert.equal(cart.lineCount, 1);\n  assert.equal(checkoutCart.lineCount, 1);\n',
-);
-updateContracts((entry) => {
-  if (entry.id === 'CART_CHECKOUT_CONTRACT') entry.version = '4';
-});
+const scenario = resolveScenario();
+
+if (scenario === 'small-cart-checkout') {
+  applySmallCartCheckoutChange();
+} else if (scenario === 'large-catalog-product') {
+  applyLargeCatalogProductChange();
+} else {
+  throw new Error(`Unsupported cart Miyabi scenario: ${scenario}`);
+}
+
+function resolveScenario() {
+  const text = [process.env.AUTOMATION_TASK_TITLE, process.env.AUTOMATION_TASK_ID].filter(Boolean).join(' ').toLowerCase();
+  if (text.includes('small-cart-checkout')) return 'small-cart-checkout';
+  if (text.includes('large-catalog-product')) return 'large-catalog-product';
+  return 'unknown';
+}
+
+function applySmallCartCheckoutChange() {
+  replaceOnce(
+    'src/cart.mjs',
+    "    pricingMode: 'gross',\n  };",
+    "    pricingMode: 'gross',\n    checkoutReady: true,\n  };",
+  );
+  replaceOnce(
+    'test/cart.test.mjs',
+    "  assert.equal(checkoutCart.pricingMode, 'gross');\n",
+    "  assert.equal(checkoutCart.pricingMode, 'gross');\n  assert.equal(checkoutCart.checkoutReady, true);\n",
+  );
+  updateContracts((entry) => {
+    if (entry.id === 'CART_CHECKOUT_CONTRACT') entry.version = '7';
+  });
+}
+
+function applyLargeCatalogProductChange() {
+  replaceOnce(
+    'src/cart.mjs',
+    '    fulfillmentRegion: product.fulfillmentRegion,\n',
+    "    fulfillmentRegion: product.fulfillmentRegion,\n    lifecycleBadge: product.lifecycleBadge,\n",
+  );
+  replaceOnce(
+    'test/cart.test.mjs',
+    "  const product = { id: 'sku-1', priceCents: 1200, category: 'stationery', taxClass: 'standard', stockStatus: 'in-stock', fulfillmentRegion: 'JP' };\n",
+    "  const product = { id: 'sku-1', priceCents: 1200, category: 'stationery', taxClass: 'standard', stockStatus: 'in-stock', fulfillmentRegion: 'JP', lifecycleBadge: 'standard-flow' };\n",
+  );
+  replaceOnce(
+    'test/cart.test.mjs',
+    "  assert.equal(checkoutCart.lines[0].fulfillmentRegion, 'JP');\n",
+    "  assert.equal(checkoutCart.lines[0].fulfillmentRegion, 'JP');\n  assert.equal(checkoutCart.lines[0].lifecycleBadge, 'standard-flow');\n",
+  );
+  updateContracts((entry) => {
+    if (entry.id === 'CATALOG_PRODUCT_CONTRACT') entry.version = '7';
+    if (entry.id === 'CART_CHECKOUT_CONTRACT') entry.version = '8';
+  });
+}
 
 function updateContracts(mutator) {
   const filePath = 'config/gitnexus-contracts.json';
