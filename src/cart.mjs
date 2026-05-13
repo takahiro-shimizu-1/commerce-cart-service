@@ -29,5 +29,6 @@ export function buildCheckoutCart(cart) {
     lineCount: cart.lines.length,
     currency: cart.currency,
     pricingMode: 'gross',
+    checkoutReady: true,
   };
 }

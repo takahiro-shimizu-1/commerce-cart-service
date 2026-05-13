@@ -18,7 +18,7 @@
       "role": "provider",
       "symbol": "CART_CHECKOUT_CONTRACT",
       "filePath": "src/cart.mjs",
-      "version": "6",
+      "version": "7",
       "consumers": [
         "features/checkout",
         "frontends/storefront"
