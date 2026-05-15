@@ -31,5 +31,6 @@ export function buildCheckoutCart(cart) {
     currency: cart.currency,
     pricingMode: 'gross',
     checkoutReady: true,
+    handoffNote: 'ready-for-payment',
   };
 }
