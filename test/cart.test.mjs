@@ -12,6 +12,7 @@ test('cart accepts catalog products and produces checkout cart', () => {
   assert.equal(checkoutCart.lineCount, 1);
   assert.equal(checkoutCart.pricingMode, 'gross');
   assert.equal(checkoutCart.checkoutReady, true);
+  assert.equal(checkoutCart.handoffNote, 'ready-for-payment');
   assert.equal(checkoutCart.lines[0].category, 'stationery');
   assert.equal(checkoutCart.lines[0].taxClass, 'standard');
   assert.equal(checkoutCart.lines[0].stockStatus, 'in-stock');
