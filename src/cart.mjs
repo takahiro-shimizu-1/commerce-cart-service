@@ -13,6 +13,7 @@ export function addCatalogProductToCart(product, quantity) {
     stockStatus: product.stockStatus,
     fulfillmentRegion: product.fulfillmentRegion,
     lifecycleBadge: product.lifecycleBadge,
+    qualitySignal: product.qualitySignal,
   };
   return {
     lines: [line],
